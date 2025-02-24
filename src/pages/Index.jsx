@@ -130,7 +130,8 @@ const Index = () => {
                     className={`absolute top-0 left-0 w-full ${isActive ? 'pointer-events-auto' : 'pointer-events-none'}`}
                   >
                     <div className={`w-full bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-2xl
-                                  border border-white/20 ${isActive ? 'opacity-100' : 'opacity-70'}`}>
+                                  border border-white/20 ${isActive ? 'opacity-100' : 'opacity-70'}
+                                  transform-gpu perspective-1000`}>
                       <motion.h2 
                         className="text-2xl font-semibold mb-8 leading-tight"
                         initial={{ opacity: 0, y: 20 }}
@@ -152,8 +153,18 @@ const Index = () => {
                                      hover:from-white/10 hover:to-white/20
                                      transition-all duration-300 transform hover:scale-[1.02]
                                      border border-white/10 hover:border-white/30
-                                     shadow-lg hover:shadow-xl"
+                                     shadow-lg hover:shadow-xl relative overflow-hidden
+                                     group"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
                           >
+                            <motion.div
+                              className="absolute inset-0 bg-gradient-to-r from-blue-500/0 to-purple-500/0 opacity-0 group-hover:opacity-10 
+                                       transition-opacity duration-300"
+                              initial={false}
+                              animate={{ opacity: 0 }}
+                              whileHover={{ opacity: 0.1 }}
+                            />
                             {option}
                           </motion.button>
                         ))}
@@ -175,24 +186,41 @@ const Index = () => {
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
                 >
-                  <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mx-auto flex items-center justify-center">
+                  <motion.div 
+                    className="w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mx-auto flex items-center justify-center"
+                    animate={{ 
+                      boxShadow: [
+                        "0 0 0 0 rgba(147, 51, 234, 0)",
+                        "0 0 0 20px rgba(147, 51, 234, 0.2)",
+                        "0 0 0 0 rgba(147, 51, 234, 0)"
+                      ]
+                    }}
+                    transition={{ 
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  >
                     <svg 
                       className="w-12 h-12 text-white" 
                       fill="none" 
                       stroke="currentColor" 
                       viewBox="0 0 24 24"
                     >
-                      <path 
+                      <motion.path 
                         strokeLinecap="round" 
                         strokeLinejoin="round" 
                         strokeWidth={2} 
-                        d="M5 13l4 4L19 7" 
+                        d="M5 13l4 4L19 7"
+                        initial={{ pathLength: 0 }}
+                        animate={{ pathLength: 1 }}
+                        transition={{ duration: 0.5, delay: 0.3 }}
                       />
                     </svg>
-                  </div>
+                  </motion.div>
                 </motion.div>
                 <motion.h2 
-                  className="text-3xl font-bold mb-4"
+                  className="text-3xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 }}
@@ -211,11 +239,21 @@ const Index = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.9 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={handleSubmit}
                   className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-3 rounded-xl
                            hover:opacity-90 transition-all duration-300
-                           transform hover:scale-[1.02] shadow-lg hover:shadow-xl"
+                           transform hover:scale-[1.02] shadow-lg hover:shadow-xl
+                           relative overflow-hidden group"
                 >
+                  <motion.div
+                    className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 
+                             transition-opacity duration-300"
+                    initial={false}
+                    animate={{ opacity: 0 }}
+                    whileHover={{ opacity: 0.1 }}
+                  />
                   Submit Answers
                 </motion.button>
               </motion.div>
