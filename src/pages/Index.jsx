@@ -69,103 +69,159 @@ const Index = () => {
     if (currentQuestion === questions.length - 1) {
       setIsCompleted(true);
     } else {
-      setTimeout(() => {
-        setCurrentQuestion(prev => prev + 1);
-      }, 300);
+      setCurrentQuestion(prev => prev + 1);
     }
   };
 
   const handleSubmit = () => {
     console.log('Survey answers:', answers);
-    // Here you would typically send the answers to your backend
   };
 
   const progressPercentage = ((currentQuestion) / questions.length) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-survey-primary to-survey-secondary text-white py-8 px-4">
-      <div className="max-w-md mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-survey-primary to-blue-900 text-white py-8 px-4 overflow-hidden">
+      <div className="max-w-md mx-auto relative">
         {/* Progress bar */}
-        <div className="mb-8">
-          <div className="h-2 w-full bg-gray-700 rounded-full">
-            <div 
-              className="h-full bg-survey-accent rounded-full transition-all duration-300 ease-out"
-              style={{ width: `${progressPercentage}%` }}
+        <motion.div 
+          className="mb-12"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
+            <motion.div 
+              className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${progressPercentage}%` }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
             />
           </div>
-          <p className="text-sm text-gray-400 mt-2">
+          <p className="text-sm text-gray-300 mt-2 font-medium">
             Question {currentQuestion + 1} of {questions.length}
           </p>
-        </div>
+        </motion.div>
 
-        {/* Question card */}
-        <AnimatePresence mode="wait">
-          {!isCompleted ? (
-            <motion.div
-              key={currentQuestion}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-xl"
-            >
-              <h2 className="text-xl font-medium mb-6">
-                {questions[currentQuestion].question}
-              </h2>
-              <div className="space-y-3">
-                {questions[currentQuestion].options.map((option, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleAnswer(option)}
-                    className="w-full text-left p-4 rounded-xl bg-white/5 hover:bg-white/10 
-                             transition-all duration-200 transform hover:scale-[1.02]
-                             border border-white/10 hover:border-white/20"
+        {/* Stacked Question Cards */}
+        <div className="relative h-[450px]">
+          <AnimatePresence mode="popLayout">
+            {!isCompleted ? (
+              questions.map((question, index) => {
+                const isActive = index === currentQuestion;
+                const isPast = index < currentQuestion;
+                const isFuture = index > currentQuestion;
+
+                return (
+                  <motion.div
+                    key={question.id}
+                    initial={isPast ? { scale: 1, y: 0, zIndex: questions.length - index } : 
+                            isFuture ? { scale: 0.95, y: 20, zIndex: questions.length - index } :
+                            { scale: 0.95, y: 20, zIndex: questions.length }}
+                    animate={isActive ? { scale: 1, y: 0, zIndex: questions.length } :
+                            isPast ? { scale: 0.9, y: 400, zIndex: -1, opacity: 0 } :
+                            { scale: 0.95, y: 20 * (index - currentQuestion), zIndex: questions.length - index }}
+                    exit={isPast ? { scale: 0.9, y: 400, opacity: 0 } : { scale: 0.95, y: 20 }}
+                    transition={{
+                      duration: 0.5,
+                      ease: "easeInOut",
+                      scale: { duration: 0.4 },
+                      y: { duration: 0.4 }
+                    }}
+                    className={`absolute top-0 left-0 w-full ${isActive ? 'pointer-events-auto' : 'pointer-events-none'}`}
                   >
-                    {option}
-                  </button>
-                ))}
-              </div>
-            </motion.div>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="text-center bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-xl"
-            >
-              <div className="mb-6">
-                <div className="w-20 h-20 bg-survey-accent rounded-full mx-auto flex items-center justify-center">
-                  <svg 
-                    className="w-10 h-10 text-white" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M5 13l4 4L19 7" 
-                    />
-                  </svg>
-                </div>
-              </div>
-              <h2 className="text-2xl font-semibold mb-4">
-                Thank you for completing the survey!
-              </h2>
-              <p className="text-gray-300 mb-8">
-                Your responses have been recorded.
-              </p>
-              <button
-                onClick={handleSubmit}
-                className="bg-survey-accent text-white px-8 py-3 rounded-xl
-                         hover:bg-opacity-90 transition-all duration-200
-                         transform hover:scale-[1.02]"
+                    <div className={`w-full bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-2xl
+                                  border border-white/20 ${isActive ? 'opacity-100' : 'opacity-70'}`}>
+                      <motion.h2 
+                        className="text-2xl font-semibold mb-8 leading-tight"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: isActive ? 1 : 0.7, y: 0 }}
+                        transition={{ duration: 0.3, delay: 0.2 }}
+                      >
+                        {question.question}
+                      </motion.h2>
+                      <div className="space-y-4">
+                        {question.options.map((option, optionIndex) => (
+                          <motion.button
+                            key={optionIndex}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: isActive ? 1 : 0.7, x: 0 }}
+                            transition={{ duration: 0.3, delay: 0.1 * optionIndex }}
+                            onClick={() => isActive && handleAnswer(option)}
+                            className="w-full text-left p-4 rounded-xl 
+                                     bg-gradient-to-r from-white/5 to-white/10
+                                     hover:from-white/10 hover:to-white/20
+                                     transition-all duration-300 transform hover:scale-[1.02]
+                                     border border-white/10 hover:border-white/30
+                                     shadow-lg hover:shadow-xl"
+                          >
+                            {option}
+                          </motion.button>
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+                className="absolute top-0 left-0 w-full text-center bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-2xl border border-white/20"
               >
-                Submit Answers
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                <motion.div 
+                  className="mb-8"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+                >
+                  <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mx-auto flex items-center justify-center">
+                    <svg 
+                      className="w-12 h-12 text-white" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        strokeWidth={2} 
+                        d="M5 13l4 4L19 7" 
+                      />
+                    </svg>
+                  </div>
+                </motion.div>
+                <motion.h2 
+                  className="text-3xl font-bold mb-4"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
+                >
+                  Thank you for completing the survey!
+                </motion.h2>
+                <motion.p 
+                  className="text-gray-300 mb-8"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.7 }}
+                >
+                  Your responses have been recorded.
+                </motion.p>
+                <motion.button
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.9 }}
+                  onClick={handleSubmit}
+                  className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-3 rounded-xl
+                           hover:opacity-90 transition-all duration-300
+                           transform hover:scale-[1.02] shadow-lg hover:shadow-xl"
+                >
+                  Submit Answers
+                </motion.button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );
